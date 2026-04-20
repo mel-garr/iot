@@ -18,5 +18,6 @@ spec:
       containers:
         - name: my-app
           image: wil42/playground:v2
+          imagePullPolicy: Always
           ports:
             - containerPort: 8888
