@@ -17,19 +17,31 @@ echo "Installing ArgoCD"
 kubectl apply --server-side -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 kubectl wait --for=condition=available --timeout=300s deployment -n argocd --all
 
+echo "Disabling TLS for ArgoCD (for ingress)"
+
+kubectl patch deployment argocd-server -n argocd \
+  --type='json' \
+  -p='[
+    {
+      "op": "replace",
+      "path": "/spec/template/spec/containers/0/args",
+      "value": ["/usr/local/bin/argocd-server","--insecure"]
+    }
+  ]'
+
+kubectl rollout restart deployment argocd-server -n argocd
+kubectl rollout status deployment argocd-server -n argocd
+
 kubectl get secret argocd-initial-admin-secret -n argocd \
   -o jsonpath="{.data.password}" | base64 -d
 echo -e "\n"
 
 echo "applying app+ingress"
-pwd
 
 kubectl apply -f confs/
 
 echo "setup sala\n"
 
 echo "👉 Then access:"
-echo "Argo CD: https://argocd.local"
+echo "Argo CD: http://argocd.local"
 echo "App:      http://app.local"
-
-
