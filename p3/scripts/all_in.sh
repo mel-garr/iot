@@ -34,8 +34,6 @@ kubectl rollout status deployment argocd-server -n argocd
 
 kubectl get secret argocd-initial-admin-secret -n argocd \
   -o jsonpath="{.data.password}" | base64 -d
-echo -e "\n"
-
 echo "applying app+ingress"
 
 kubectl apply -f confs/

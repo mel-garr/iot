@@ -12,6 +12,8 @@ spec:
     metadata:
       labels:
         app: my-app
+      annotations:
+        redeploy: "v2-1"
     spec:
       containers:
         - name: my-app
