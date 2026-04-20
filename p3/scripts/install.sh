@@ -3,20 +3,58 @@
 set -e
 
 apt-get update -y
-apt-get install -y curl
 
-curl -fsSL https://get.docker.com | bash
-usermod -aG docker ${SUDO_USER:-$USER}
+echo "checking curl"
+if ! command -v curl &> /dev/null; then
+    apt-get install -y curl
+else
+    echo "curl is already installed"
+fi
 
-KUBECTL_VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
+echo "checking docker"
+if ! command -v docker &> /dev/null; then
+    curl -fsSL https://get.docker.com | bash
+    usermod -aG docker ${SUDO_USER:-$USER}
+else
+    echo "docker is already installed"
+fi
 
-curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
-curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256"
+echo "checking kubectl"
+if ! command -v kubectl &> /dev/null; then
+    KUBECTL_VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
 
-echo "$(cat kubectl.sha256) kubectl" | sha256sum --check
+    curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+    curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256"
 
-install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    echo "$(cat kubectl.sha256) kubectl" | sha256sum --check
 
-rm kubectl kubectl.sha256
+    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-curl -fsSL https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+    rm kubectl kubectl.sha256
+else
+    echo "kubectl is already installed"
+fi
+
+echo "installing k3d"
+if ! command -v k3d &> /dev/null; then
+    curl -fsSL https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+else
+    echo "k3d is already installed"
+fi
+
+HOSTS_FILE="/etc/hosts"
+
+add_host() {
+    ENTRY=$1
+    if ! grep -q "$ENTRY" $HOSTS_FILE; then
+        echo "$ENTRY" >> $HOSTS_FILE
+        echo "Added $ENTRY"
+    else
+        echo "$ENTRY already exists"
+    fi
+}
+
+add_host "127.0.0.1 argocd.local"
+add_host "127.0.0.1 app.local"
+
+echo "Installation complete"
