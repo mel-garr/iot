@@ -42,19 +42,19 @@ else
     echo "k3d is already installed"
 fi
 
-HOSTS_FILE="/etc/hosts"
+# HOSTS_FILE="/etc/hosts"
 
-add_host() {
-    ENTRY=$1
-    if ! grep -q "$ENTRY" $HOSTS_FILE; then
-        echo "$ENTRY" >> $HOSTS_FILE
-        echo "Added $ENTRY"
-    else
-        echo "$ENTRY already exists"
-    fi
-}
+# add_host() {
+#     ENTRY=$1
+#     if ! grep -q "$ENTRY" $HOSTS_FILE; then
+#         echo "$ENTRY" >> $HOSTS_FILE
+#         echo "Added $ENTRY"
+#     else
+#         echo "$ENTRY already exists"
+#     fi
+# }
 
-add_host "127.0.0.1 argocd.local"
-add_host "127.0.0.1 app.local"
+# add_host "127.0.0.1 argocd.local"
+# add_host "127.0.0.1 app.local"
 
 echo "Installation complete"
